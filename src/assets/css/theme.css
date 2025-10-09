@@ -1,1 +1,60 @@
-/* This file is intentionally left blank. */
+:root {
+  --bg-default: #f9fafb;
+  --bg-paper: #ffffff;
+  --text-primary: #2d2d2d;
+  --text-secondary: #555555;
+  --primary: #8ecae6; /* pastel blue */
+  --primary-light: #bde0fe;
+  --secondary: #ffb3c1; /* pastel pink */
+  --success: #b9e28c; /* pastel green */
+  --warning: #ffd166; /* soft amber */
+  --error: #ffadad; /* soft red */
+  --radius: 10px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg-default);
+  color: var(--text-primary);
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* App bar spacing */
+main, .page-container {
+  padding: 24px;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Cards / panels */
+.card, .panel, .paper {
+  background: var(--bg-paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+}
+
+/* Buttons (non-MUI fallbacks) */
+button {
+  background: var(--primary);
+  color: #073b4c;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  cursor: pointer;
+}
+button:hover {
+  background: var(--primary-light);
+}
