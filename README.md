@@ -1,6 +1,6 @@
 # AgriCraft React
 
-AgriCraft is a global marketplace for value-added farm goods, designed to connect farmers with buyers worldwide. This project is built using React and Vite, utilizing Material-UI (MUI) for styling and theming.
+AgriCraft is a global marketplace for value-added farm goods, designed to connect farmers with buyers worldwide. This project is built with React 18 and Vite 7, using Material UI (MUI) and a custom light pastel theme.
 
 ## Project Structure
 
@@ -91,26 +91,54 @@ agricraft-react
 
 ## Getting Started
 
-To get started with the project, follow these steps:
+Follow these steps to run the app locally:
 
 1. Clone the repository:
+   ```bash
    git clone <repository-url>
+   ```
 
 2. Navigate to the project directory:
+   ```bash
    cd agricraft-react
+   ```
 
-3. Install the dependencies:
+3. Install dependencies:
+   ```bash
    npm install
+   ```
 
-4. Start the development server:
+4. Start the dev server:
+   ```bash
    npm run dev
+   ```
 
-5. Open your browser and navigate to `http://localhost:3000` to view the application.
+5. Open your browser at `http://localhost:3000`.
+
+Notes:
+- On Windows PowerShell, use `;` to chain commands (not `&&`). Example:
+  ```powershell
+  cd .\agricraft-react; npm run dev
+  ```
+- To expose on your LAN, run: `vite --host` or set in `vite.config.js`.
+
+Troubleshooting:
+- If you see dependency optimize/re-optimize messages on first run, this is normal.
+- If the port is busy, change the dev port in `vite.config.js` under `server.port`.
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.
 
 ## License
+
+## Theme
+
+This project ships with a light pastel theme:
+- Primary: soft blue (`#8ecae6`), Secondary: soft pink (`#ffb3c1`)
+- Neutral backgrounds, gentle elevation, rounded corners
+- MUI theme in `src/theme.js` and global CSS tokens in `src/assets/css/theme.css`
+
+Global baseline styles are applied via MUI `CssBaseline` in `src/components/common/ThemeProvider.jsx`.
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
