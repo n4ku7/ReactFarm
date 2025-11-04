@@ -2,24 +2,24 @@
   "name": "agricraft-react",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host localhost --port 3000",
     "build": "vite build",
-    "serve": "vite preview"
+    "preview": "vite preview",
+    "clean": "rimraf node_modules package-lock.json",
+    "clean-old": "node scripts/prune_old.js"
   },
   "dependencies": {
-    "@emotion/react": "^11.0.0",
-    "@emotion/styled": "^11.0.0",
-    "@mui/material": "^5.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.0.0"
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.1"
   },
   "devDependencies": {
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "typescript": "^4.0.0",
     "vite": "^7.1.9"
   }
 }

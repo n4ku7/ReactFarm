@@ -1,12 +1,10 @@
-import React from 'react';
+import React from 'react'
 
-const Categories = () => {
-    return (
-        <div>
-            <h1>Product Categories</h1>
-            {/* Add your category listing logic here */}
-        </div>
-    );
-};
+const Categories = () => (
+    <div className="page-container">
+        <h1>Product Categories</h1>
+        <p>Browse categories of farm products here.</p>
+    </div>
+)
 
-export default Categories;
+export default Categories
