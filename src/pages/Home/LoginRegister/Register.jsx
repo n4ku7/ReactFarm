@@ -1,79 +1,82 @@
-import React, { useState } from 'react';
+import React from 'react'
+import { Box, Paper, Typography, TextField, Button, Stack } from '@mui/material'
 
 const Register = () => {
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    });
+  const [form, setForm] = React.useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
+  const [errors, setErrors] = React.useState({ passwordMatch: '' })
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
+  const onChange = (e) => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+    if (name === 'password' || name === 'confirmPassword') {
+      const nextPassword = name === 'password' ? value : form.password
+      const nextConfirm = name === 'confirmPassword' ? value : form.confirmPassword
+      setErrors({ passwordMatch: nextPassword && nextConfirm && nextPassword !== nextConfirm ? 'Passwords do not match' : '' })
+    }
+  }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Add registration logic here
-        console.log('Form submitted:', formData);
-    };
+  const onSubmit = (e) => {
+    e.preventDefault()
+    if (form.password !== form.confirmPassword) {
+      setErrors({ passwordMatch: 'Passwords do not match' })
+      return
+    }
+    console.log('Register submit', { username: form.username, email: form.email })
+    // Hook up API here
+  }
 
-        return (
-            <div className="page-container">
-                <h2>Register</h2>
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label htmlFor="username">Username:</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="email">Email:</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="password">Password:</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="confirmPassword">Confirm Password:</label>
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <button type="submit">Register</button>
-                </form>
-            </div>
-        );
-};
+  return (
+    <Box className="page-container" sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+      <Paper elevation={1} sx={{ p: 3, width: '100%', maxWidth: 480 }}>
+        <Typography variant="h5" gutterBottom>Create your account</Typography>
+        <Stack component="form" onSubmit={onSubmit} spacing={2}>
+          <TextField
+            name="username"
+            label="Username"
+            required
+            fullWidth
+            value={form.username}
+            onChange={onChange}
+          />
+          <TextField
+            name="email"
+            type="email"
+            label="Email"
+            required
+            fullWidth
+            value={form.email}
+            onChange={onChange}
+          />
+          <TextField
+            name="password"
+            type="password"
+            label="Password"
+            required
+            fullWidth
+            value={form.password}
+            onChange={onChange}
+          />
+          <TextField
+            name="confirmPassword"
+            type="password"
+            label="Confirm Password"
+            required
+            fullWidth
+            value={form.confirmPassword}
+            onChange={onChange}
+            error={Boolean(errors.passwordMatch)}
+            helperText={errors.passwordMatch}
+          />
+          <Button type="submit" variant="contained" color="primary">Create account</Button>
+        </Stack>
+      </Paper>
+    </Box>
+  )
+}
 
-export default Register;
+export default Register

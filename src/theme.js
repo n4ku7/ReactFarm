@@ -3,17 +3,20 @@ import { createTheme } from '@mui/material/styles'
 const theme = createTheme({
   palette: {
     mode: 'light',
-    background: { default: '#f9fafb', paper: '#ffffff' },
-    primary: { main: '#8ecae6', contrastText: '#073b4c' },
-    secondary: { main: '#ffb3c1', contrastText: '#4a4a4a' },
-    success: { main: '#b9e28c' },
-    warning: { main: '#ffd166' },
-    info: { main: '#a0c4ff' },
-    error: { main: '#ffadad' },
-    text: { primary: '#2d2d2d', secondary: '#555' },
-    divider: 'rgba(0,0,0,0.08)'
+    // Off-white canvas with subtle green tint
+    background: { default: '#fafbf7', paper: '#ffffff' },
+    // Farm complements: forest green primary, amber secondary, sky info, soil accents
+    primary: { main: '#2e7d32', contrastText: '#ffffff' },
+    secondary: { main: '#fbc02d', contrastText: '#3e2723' },
+    success: { main: '#66bb6a' },
+    warning: { main: '#fb8c00' },
+    info: { main: '#64b5f6' },
+    error: { main: '#e57373' },
+    // Neutral text tuned for off-white
+    text: { primary: '#243224', secondary: '#5a6a5a' },
+    divider: 'rgba(36,66,36,0.12)'
   },
-  shape: { borderRadius: 10 },
+  shape: { borderRadius: 12 },
   typography: {
     fontFamily: 'Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif',
     h1: { fontWeight: 700 },
@@ -26,13 +29,15 @@ const theme = createTheme({
       styleOverrides: {
         colorPrimary: {
           backgroundColor: '#ffffff',
-          color: '#2d2d2d',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.06)'
+          color: '#243224',
+          boxShadow: '0 1px 2px rgba(36,66,36,0.06)'
         }
       }
     },
-    MuiButton: { styleOverrides: { root: { borderRadius: 10 } } },
-    MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } }
+    MuiButton: { styleOverrides: { root: { borderRadius: 12 } } },
+    MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+    MuiCard: { styleOverrides: { root: { borderRadius: 12 } } },
+    MuiChip: { styleOverrides: { root: { borderRadius: 8 } } }
   }
 })
 
