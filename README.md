@@ -7,11 +7,11 @@ Built using **React 18**, **Vite 7**, and **Material UI (MUI)** with a **custom 
 
 ## 🚀 Tech Stack
 
-- **Frontend:** React 18, Vite 7  
-- **UI Framework:** Material UI (MUI)  
-- **Styling:** Custom pastel theme, CSS3, MUI ThemeProvider  
-- **State Management:** React Hooks  
-- **Build Tool:** Vite  
+- **Frontend:** React 18, Vite 7
+- **UI Framework:** Material UI (MUI)
+- **Styling:** Custom pastel theme, CSS3, MUI ThemeProvider
+- **State Management:** React Hooks
+- **Build Tool:** Vite
 - **Language:** JavaScript (ES2023)
 
 ---
@@ -59,5 +59,5 @@ agricraft-react
 
 ### 1️⃣ Clone the repository
 ```bash
-git clone <repository-url>
-cd agricraft-react
+git clone https://github.com/n4ku7/ReactFarm.git
+cd <folder name>
