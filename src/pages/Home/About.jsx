@@ -10,6 +10,9 @@ import Button from '@mui/material/Button'
 const About = () => {
     return (
         <Container maxWidth="lg" sx={{ py: 6 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                <Box component="img" src="/images/group-logo.svg" alt="AgriCraft group logo" sx={{ width: 120, height: 120 }} />
+            </Box>
             <Typography variant="h4" component="h1" gutterBottom>About AgriCraft</Typography>
             <Typography color="text.secondary" sx={{ mb: 4 }}>
                 AgriCraft is a marketplace built to connect small and medium farmers with buyers around the world. We
