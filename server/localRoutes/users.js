@@ -80,4 +80,33 @@ router.post('/logout', authMiddleware, async (req, res) => {
   res.status(204).end()
 })
 
+// update user role (admin only)
+router.put('/:id/role', authMiddleware, requireRole('admin'), async (req, res) => {
+  const { role } = req.body
+  if (!role || !['buyer', 'farmer', 'admin'].includes(role)) {
+    return res.status(400).json({ error: 'Invalid role' })
+  }
+  await db.read()
+  const user = (db.data.users || []).find(u => String(u.id) === String(req.params.id))
+  if (!user) return res.status(404).json({ error: 'User not found' })
+  user.role = role
+  await db.write()
+  const { password, ...rest } = user
+  res.json(rest)
+})
+
+// delete user (admin only)
+router.delete('/:id', authMiddleware, requireRole('admin'), async (req, res) => {
+  await db.read()
+  const idx = (db.data.users || []).findIndex(u => String(u.id) === String(req.params.id))
+  if (idx === -1) return res.status(404).json({ error: 'User not found' })
+  const deletedUser = db.data.users[idx]
+  db.data.users.splice(idx, 1)
+  // also remove user's products and orders
+  db.data.products = (db.data.products || []).filter(p => String(p.farmerId) !== String(deletedUser.id))
+  db.data.orders = (db.data.orders || []).filter(o => String(o.buyerId) !== String(deletedUser.id))
+  await db.write()
+  res.status(204).end()
+})
+
 export default router
