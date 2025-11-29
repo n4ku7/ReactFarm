@@ -7,12 +7,5 @@ export default defineConfig({
   server: {
     port: 3000,
     host: 'localhost'
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src')
-    }
-  },
-  publicDir: 'public',
-  root: '.'
+  }
 });
