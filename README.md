@@ -22,109 +22,59 @@ AgriCraft is a demo marketplace connecting farmers and buyers. This repository c
 
 Quick tech summary:
 - React 18
-```markdown
-# 🌾 AgriCraft (React)
+- Vite
+- Material UI (MUI)
 
-AgriCraft is a demo marketplace connecting farmers and buyers. This repository contains a Vite + React frontend and an optional Express backend for local development and prototyping.
+## Project layout (important files)
+- `public/index.html` — HTML entry
+- `src/main.jsx` — app entry and Router
+- `src/App.jsx` — routes and layout
+- `src/components/common/` — Navbar, Footer, ThemeProvider
+- `src/pages/` — app pages
+- `vite.config.js` — dev server config
+- `package.json` — scripts
+- `server/` — optional Express backend (added)
 
----
+## Run (frontend)
+1. Install dependencies
 
-**Tech stack:** React 18, Vite, Material UI (MUI), Node/Express (optional backend)
-
----
-
-## Prerequisites
-
-- Node.js 18+ and npm installed
-- (Optional) `git` for cloning and branching
-
----
-
-## Quick start — Frontend
-
-1. Install dependencies:
-
-```powershell
+```cmd
 npm install
 ```
 
-2. Start the dev server:
+2. Start dev server
 
 ```powershell
 npm run dev
 ```
 
-3. Open `http://localhost:5174` (or the port Vite displays).
+Open http://localhost:5174 (or the port Vite shows) in your browser.
 
----
+## Optional backend
 
-## Optional backend (local API)
+The `server/` folder contains a small Express app using `lowdb` as a JSON datastore. It is meant for local development and prototyping only.
 
-The `server/` folder contains a small Express app that uses a JSON datastore (`lowdb`) for demo purposes. It's provided for local development only.
-
-- Start backend (from project root):
+Start backend (from project root):
 
 ```powershell
 npm --prefix server run start
 ```
 
-- Run backend in dev mode (auto-restart):
+Or run dev auto-restart:
 
 ```powershell
 npm --prefix server run dev
 ```
 
-Default backend port: `4000` (confirm in `server/index.js`).
+Backend endpoints (default port 4000):
+- `GET /api/products`
+- `GET /api/products/:id`
+- `POST /api/products`
+- `PUT /api/products/:id`
+- `DELETE /api/products/:id`
+- `GET /api/users`
+- `POST /api/users`
+- `GET /api/orders`
+- `POST /api/orders`
 
-**Warning:** The backend is not production-ready. Add input validation, authentication, and a real database before deploying.
-
----
-
-## Project layout (key files)
-
-- `public/index.html` — HTML entry
-- `src/main.jsx` — React entry, Router and context providers
-- `src/App.jsx` — App layout and route definitions
-- `src/components/common/` — `Navbar`, `Footer`, `ProductCard`, `ThemeProvider`
-- `src/pages/` — Route pages (Home, Dashboards, etc.)
-- `src/context/` — `AuthContext`, `CartContext`, `ProtectedRoute`
-- `server/` — optional Express backend (localRoutes, models, middleware)
-- `vite.config.js` — Vite configuration
-- `package.json` — frontend scripts and dependencies
-
----
-
-## Available scripts (frontend)
-
-- `npm run dev` — Start Vite dev server
-- `npm run build` — Build production assets
-- `npm run preview` — Preview the built site
-
----
-
-## .env and config
-
-- If your local setup needs environment variables, add a `.env` file in the project root. For clarity, consider adding a `.env.example` file with required keys (I can add one if you want).
-
----
-
-## Contributing
-
-- Fork the repo and open a branch for your changes
-- Keep changes focused and provide a short PR description
-- Optionally add tests or run the app locally to verify behavior
-
-If you'd like, I can add a minimal `CONTRIBUTING.md` and a `.env.example`.
-
----
-
-### Next steps I can do for you
-
-- Commit these README changes and create a branch
-- Add `.env.example` and `CONTRIBUTING.md`
-- Add a simple GitHub Action that runs `npm ci` and `npm run build`
-
----
-
-© Local demo — AgriCraft
-```
+Security note: this backend is not production-ready. Add validation, auth, and proper database before using in production.
