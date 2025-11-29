@@ -16,48 +16,73 @@ Built using **React 18**, **Vite 7**, and **Material UI (MUI)** with a **custom 
 
 ---
 
-## 🧱 Project Structure
+# 🌾 AgriCraft React
 
-agricraft-react
-├── public/
-│ └── index.html # Root HTML file
-├── src/
-│ ├── App.jsx # Main App component
-│ ├── main.jsx # Application entry point
-│ ├── theme.js # MUI theme configuration
-│ ├── assets/
-│ │ ├── css/theme.css # Global theme styles
-│ │ ├── img/ # Image assets
-│ │ └── js/ # Custom JS utilities
-│ ├── components/common/ # Shared components (Navbar, Footer, etc.)
-│ ├── pages/
-│ │ ├── Home/ # Landing, About, Contact, Login/Register
-│ │ ├── GlobalMarketplace/ # Public marketplace pages
-│ │ ├── FarmerDashboard/ # Farmer portal and management tools
-│ │ ├── BuyerDashboard/ # Buyer dashboard, orders, and reviews
-│ │ └── AdminDashboard/ # Admin management, reports, and analytics
-├── package.json # NPM configuration
-├── vite.config.js # Vite setup and dev server config
-└── README.md # Project documentation
+AgriCraft is a demo marketplace connecting farmers and buyers. This repository contains a Vite + React frontend and a small optional Express backend for local development.
 
+Quick tech summary:
+- React 18
+- Vite
+- Material UI (MUI)
 
----
+## Project layout (important files)
+- `public/index.html` — HTML entry
+- `src/main.jsx` — app entry and Router
+- `src/App.jsx` — routes and layout
+- `src/components/common/` — Navbar, Footer, ThemeProvider
+- `src/pages/` — app pages
+- `vite.config.js` — dev server config
+- `package.json` — scripts
+- `server/` — optional Express backend (added)
 
-## ✨ Key Features
+## Run (frontend)
+1. Install dependencies
 
-- 👩‍🌾 **Farmer Dashboard** — Manage products, track orders, and view earnings  
-- 🛒 **Buyer Dashboard** — Browse products, manage cart, and place orders  
-- 🧾 **Admin Portal** — Approve listings, manage users, and view analytics  
-- 🌍 **Global Marketplace** — Search, filter, and explore trending farm goods  
-- 💬 **Messaging & Reviews** — Built-in communication and feedback system  
-- 🎨 **Light Pastel Theme** — Soft color palette with gentle elevation & rounded UI  
-- ⚡ **Optimized Build** — Powered by Vite for blazing-fast dev and production builds  
+```cmd
+npm install
+```
 
----
+2. Start dev server
 
-## 🧰 Getting Started
+```cmd
+npm run dev
+```
 
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/n4ku7/ReactFarm.git
-cd <folder name>
+Open http://localhost:5174 (or the port Vite shows) in your browser.
+
+## Optional backend
+
+The `server/` folder contains a small Express app using `lowdb` as a JSON datastore. It is meant for local development and prototyping only.
+
+Start backend (from project root):
+
+```cmd
+npm --prefix server run start
+```
+
+Or run dev auto-restart:
+
+```cmd
+npm --prefix server run dev
+```
+
+Backend endpoints (default port 4000):
+- `GET /api/products`
+- `GET /api/products/:id`
+- `POST /api/products`
+- `PUT /api/products/:id`
+- `DELETE /api/products/:id`
+- `GET /api/users`
+- `POST /api/users`
+- `GET /api/orders`
+- `POST /api/orders`
+
+Security note: this backend is not production-ready. Add validation, auth, and proper database before using in production.
+
+## Next steps I can do for you
+- Add authentication (JWT + password hashing)
+- Replace `lowdb` with SQLite or Postgres and add migrations
+- Seed the DB with realistic demo data
+- Wire frontend pages to the backend endpoints
+
+Tell me which of these you'd like next.
