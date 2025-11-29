@@ -11,7 +11,7 @@ const Feedbacks = () => {
     const load = async () => {
       try {
         setLoading(true)
-        const res = await fetch('http://localhost:4000/api/feedbacks')
+        const res = await fetch('/api/feedbacks')
         if (!res.ok) throw new Error('Failed to load')
         const data = await res.json()
         if (mounted) setFeedbacks(data)

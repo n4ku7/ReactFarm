@@ -12,15 +12,30 @@ const BuyerCart = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
   const [message, setMessage] = React.useState({ type: '', text: '' })
+  const [billing, setBilling] = React.useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: ''
+  })
 
   const handleCheckout = async () => {
     if (!cart.length) {
       setMessage({ type: 'error', text: 'Cart is empty' })
       return
     }
+    const { firstName, lastName, email, phone, address, city, state, zipCode } = billing
+    if (!firstName || !lastName || !email || !phone || !address || !city || !state || !zipCode) {
+      setMessage({ type: 'error', text: 'Please fill all billing details' })
+      return
+    }
     setSubmitting(true)
     try {
-      const res = await fetch('http://localhost:4000/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,7 +43,8 @@ const BuyerCart = () => {
         },
         body: JSON.stringify({
           items: cart,
-          total
+          total,
+          billing
         })
       })
       const data = await res.json()
@@ -36,6 +52,16 @@ const BuyerCart = () => {
       setMessage({ type: 'success', text: 'Order placed successfully!' })
       clearCart()
       setDialogOpen(false)
+      setBilling({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: ''
+      })
       setTimeout(() => window.location.hash = '/orders', 2000)
     } catch (err) {
       setMessage({ type: 'error', text: err.message })
@@ -111,9 +137,67 @@ const BuyerCart = () => {
       </Box>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Confirm Order</DialogTitle>
+        <DialogTitle>Billing Details & Confirm Order</DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>Shipping Address</Typography>
+            <TextField
+              label="First Name"
+              fullWidth
+              size="small"
+              value={billing.firstName}
+              onChange={(e) => setBilling({ ...billing, firstName: e.target.value })}
+            />
+            <TextField
+              label="Last Name"
+              fullWidth
+              size="small"
+              value={billing.lastName}
+              onChange={(e) => setBilling({ ...billing, lastName: e.target.value })}
+            />
+            <TextField
+              label="Email"
+              type="email"
+              fullWidth
+              size="small"
+              value={billing.email}
+              onChange={(e) => setBilling({ ...billing, email: e.target.value })}
+            />
+            <TextField
+              label="Phone"
+              fullWidth
+              size="small"
+              value={billing.phone}
+              onChange={(e) => setBilling({ ...billing, phone: e.target.value })}
+            />
+            <TextField
+              label="Address"
+              fullWidth
+              size="small"
+              value={billing.address}
+              onChange={(e) => setBilling({ ...billing, address: e.target.value })}
+            />
+            <TextField
+              label="City"
+              fullWidth
+              size="small"
+              value={billing.city}
+              onChange={(e) => setBilling({ ...billing, city: e.target.value })}
+            />
+            <TextField
+              label="State"
+              fullWidth
+              size="small"
+              value={billing.state}
+              onChange={(e) => setBilling({ ...billing, state: e.target.value })}
+            />
+            <TextField
+              label="ZIP Code"
+              fullWidth
+              size="small"
+              value={billing.zipCode}
+              onChange={(e) => setBilling({ ...billing, zipCode: e.target.value })}
+            />
             <Typography variant="body2" gutterBottom>
               You are about to place an order with {cart.length} item(s)
             </Typography>

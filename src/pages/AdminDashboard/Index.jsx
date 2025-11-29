@@ -21,9 +21,9 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       try {
         const [usersRes, productsRes, ordersRes] = await Promise.all([
-          fetch('http://localhost:4000/api/users', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('http://localhost:4000/api/products'),
-          fetch('http://localhost:4000/api/orders', { headers: { 'Authorization': `Bearer ${token}` } })
+          fetch('/api/users', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/products'),
+          fetch('/api/orders', { headers: { 'Authorization': `Bearer ${token}` } })
         ])
         const [users, products, orders] = await Promise.all([usersRes.json(), productsRes.json(), ordersRes.json()])
         const revenue = orders.reduce((sum, o) => sum + (o.total || 0), 0)

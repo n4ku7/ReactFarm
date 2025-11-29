@@ -21,7 +21,7 @@ const FarmerProducts = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:4000/api/products', {
+      const res = await fetch('/api/products', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await res.json()
@@ -52,8 +52,8 @@ const FarmerProducts = () => {
     try {
       const method = editingId ? 'PUT' : 'POST'
       const url = editingId
-        ? `http://localhost:4000/api/products/${editingId}`
-        : 'http://localhost:4000/api/products'
+        ? `/api/products/${editingId}`
+        : '/api/products'
       const res = await fetch(url, {
         method,
         headers: {
@@ -76,7 +76,7 @@ const FarmerProducts = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product?')) return
     try {
-      const res = await fetch(`http://localhost:4000/api/products/${id}`, {
+      const res = await fetch(`/api/products/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })

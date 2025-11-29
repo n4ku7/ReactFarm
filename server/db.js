@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import { join } from 'path'
 
-const file = join(process.cwd(), 'server', 'db.json')
+const file = join(process.cwd(), 'db.json')
 
 const store = { data: { products: [], users: [], orders: [] } }
 

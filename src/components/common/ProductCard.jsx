@@ -15,7 +15,7 @@ const ProductCard = ({ product, onAddToCart }) => {
           <Chip label={`${rating}★`} size="small" color="success" />
         </Stack>
         <Typography variant="subtitle1" gutterBottom noWrap>{title}</Typography>
-        <Typography variant="h6">${price.toFixed(2)}</Typography>
+        <Typography variant="h6">₹{price.toFixed(2)}</Typography>
       </CardContent>
       <CardActions>
         <Button size="small" variant="contained" startIcon={<ShoppingCartIcon />} onClick={() => onAddToCart?.(product)}>

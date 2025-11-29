@@ -13,7 +13,7 @@ const AdminOrders = () => {
   React.useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/orders', {
+        const res = await fetch('/api/orders', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         const data = await res.json()
@@ -28,7 +28,7 @@ const AdminOrders = () => {
 
   const handleStatusUpdate = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/orders/${selectedOrder._id}`, {
+      const res = await fetch(`/api/orders/${selectedOrder._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

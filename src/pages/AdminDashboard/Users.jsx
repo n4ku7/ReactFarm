@@ -13,7 +13,7 @@ const AdminUsers = () => {
   React.useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/users', {
+        const res = await fetch('/api/users', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         const data = await res.json()
@@ -84,7 +84,7 @@ const AdminUsers = () => {
           </TableHead>
           <TableBody>
             {users.map(user => (
-              <TableRow key={user._id}>
+              <TableRow key={user._id || user.id}>
                 <TableCell>{user.name || 'N/A'}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
