@@ -78,11 +78,3 @@ Backend endpoints (default port 4000):
 - `POST /api/orders`
 
 Security note: this backend is not production-ready. Add validation, auth, and proper database before using in production.
-
-## Next steps I can do for you
-- Add authentication (JWT + password hashing)
-- Replace `lowdb` with SQLite or Postgres and add migrations
-- Seed the DB with realistic demo data
-- Wire frontend pages to the backend endpoints
-
-Tell me which of these you'd like next.

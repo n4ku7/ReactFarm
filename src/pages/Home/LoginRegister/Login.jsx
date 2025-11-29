@@ -1,16 +1,36 @@
 import React from 'react'
-import { Box, Paper, Typography, TextField, Button, RadioGroup, FormControlLabel, Radio, FormLabel, Stack } from '@mui/material'
+import { Box, Paper, Typography, TextField, Button, RadioGroup, FormControlLabel, Radio, FormLabel, Stack, Alert } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
     const [role, setRole] = React.useState('customer')
 
+    const navigate = useNavigate()
+    const [error, setError] = React.useState('')
+    const [loading, setLoading] = React.useState(false)
+
     const handleSubmit = (e) => {
         e.preventDefault()
+        setError('')
         const form = new FormData(e.currentTarget)
         const email = form.get('email')
         const password = form.get('password')
-        console.log('Login submit', { email, role, passwordPresent: Boolean(password) })
-        // Navigate or call API here
+        if (!email || !password) return setError('Email and password required')
+        setLoading(true)
+        fetch('http://localhost:4000/api/users/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        })
+        .then(async (res) => {
+            const data = await res.json()
+            if (!res.ok) throw new Error(data?.error || 'Login failed')
+            if (data.token) localStorage.setItem('ac_token', data.token)
+            if (data.user) localStorage.setItem('ac_user', JSON.stringify(data.user))
+            navigate('/')
+        })
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false))
     }
 
     return (
@@ -18,6 +38,7 @@ const Login = () => {
             <Paper elevation={1} sx={{ p: 3, width: '100%', maxWidth: 420 }}>
                 <Typography variant="h5" gutterBottom>Login</Typography>
                 <Stack component="form" onSubmit={handleSubmit} spacing={2}>
+                    {error && <Alert severity="error">{error}</Alert>}
                     <div>
                         <FormLabel component="legend">Login as</FormLabel>
                         <RadioGroup row name="role" value={role} onChange={(e) => setRole(e.target.value)}>
@@ -28,7 +49,7 @@ const Login = () => {
                     </div>
                     <TextField name="email" type="email" label="Email" required fullWidth />
                     <TextField name="password" type="password" label="Password" required fullWidth />
-                    <Button type="submit" variant="contained" color="primary">Login</Button>
+                    <Button type="submit" variant="contained" color="primary" disabled={loading}>{loading ? 'Signing in...' : 'Login'}</Button>
                 </Stack>
             </Paper>
         </Box>

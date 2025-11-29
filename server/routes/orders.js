@@ -1,18 +1,15 @@
 import { Router } from 'express'
-import db from '../db.js'
-import { nanoid } from 'nanoid'
+import Order from '../models/Order.js'
 
 const router = Router()
 
 router.get('/', async (req, res) => {
-  await db.read()
-  res.json(db.data.orders)
+  const orders = await Order.find().sort({ createdAt: -1 }).limit(200)
+  res.json(orders)
 })
 
 router.post('/', async (req, res) => {
-  const order = { id: nanoid(), status: 'pending', ...req.body }
-  db.data.orders.push(order)
-  await db.write()
+  const order = await Order.create(req.body)
   res.status(201).json(order)
 })
 

@@ -1,14 +1,18 @@
 import React from 'react'
-import { Box, Paper, Typography, TextField, Button, Stack } from '@mui/material'
+import { Box, Paper, Typography, TextField, Button, Stack, Alert, RadioGroup, FormControlLabel, Radio, FormLabel } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
   const [form, setForm] = React.useState({
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'buyer'
   })
   const [errors, setErrors] = React.useState({ passwordMatch: '' })
+  const navigate = useNavigate()
+  const [loading, setLoading] = React.useState(false)
 
   const onChange = (e) => {
     const { name, value } = e.target
@@ -26,8 +30,23 @@ const Register = () => {
       setErrors({ passwordMatch: 'Passwords do not match' })
       return
     }
-    console.log('Register submit', { username: form.username, email: form.email })
-    // Hook up API here
+    setErrors({ passwordMatch: '' })
+    setLoading(true)
+    fetch('http://localhost:4000/api/users/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: form.username, email: form.email, password: form.password, role: form.role })
+    })
+      .then(async (res) => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(data?.error || 'Registration failed')
+        // store token and user
+        if (data.token) localStorage.setItem('ac_token', data.token)
+        if (data.user) localStorage.setItem('ac_user', JSON.stringify(data.user))
+        navigate('/')
+      })
+      .catch((err) => setErrors((prev) => ({ ...prev, submit: err.message })))
+      .finally(() => setLoading(false))
   }
 
   return (
@@ -35,6 +54,7 @@ const Register = () => {
       <Paper elevation={1} sx={{ p: 3, width: '100%', maxWidth: 480 }}>
         <Typography variant="h5" gutterBottom>Create your account</Typography>
         <Stack component="form" onSubmit={onSubmit} spacing={2}>
+          {errors.submit && <Alert severity="error">{errors.submit}</Alert>}
           <TextField
             name="username"
             label="Username"
@@ -43,6 +63,14 @@ const Register = () => {
             value={form.username}
             onChange={onChange}
           />
+          <div>
+            <FormLabel component="legend">Sign up as</FormLabel>
+            <RadioGroup row name="role" value={form.role} onChange={onChange}>
+              <FormControlLabel value="buyer" control={<Radio />} label="Buyer" />
+              <FormControlLabel value="farmer" control={<Radio />} label="Farmer" />
+              <FormControlLabel value="admin" control={<Radio />} label="Admin" />
+            </RadioGroup>
+          </div>
           <TextField
             name="email"
             type="email"
@@ -72,7 +100,7 @@ const Register = () => {
             error={Boolean(errors.passwordMatch)}
             helperText={errors.passwordMatch}
           />
-          <Button type="submit" variant="contained" color="primary">Create account</Button>
+          <Button type="submit" variant="contained" color="primary" disabled={loading}>{loading ? 'Creating...' : 'Create account'}</Button>
         </Stack>
       </Paper>
     </Box>
