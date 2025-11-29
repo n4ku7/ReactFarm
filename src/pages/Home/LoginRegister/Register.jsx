@@ -1,8 +1,11 @@
 import React from 'react'
 import { Box, Paper, Typography, TextField, Button, Stack, Alert, RadioGroup, FormControlLabel, Radio, FormLabel } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext'
 
 const Register = () => {
+  const navigate = useNavigate()
+  const { signup } = useAuth()
   const [form, setForm] = React.useState({
     username: '',
     email: '',
@@ -10,8 +13,7 @@ const Register = () => {
     confirmPassword: '',
     role: 'buyer'
   })
-  const [errors, setErrors] = React.useState({ passwordMatch: '' })
-  const navigate = useNavigate()
+  const [errors, setErrors] = React.useState({ passwordMatch: '', submit: '' })
   const [loading, setLoading] = React.useState(false)
 
   const onChange = (e) => {
@@ -20,33 +22,25 @@ const Register = () => {
     if (name === 'password' || name === 'confirmPassword') {
       const nextPassword = name === 'password' ? value : form.password
       const nextConfirm = name === 'confirmPassword' ? value : form.confirmPassword
-      setErrors({ passwordMatch: nextPassword && nextConfirm && nextPassword !== nextConfirm ? 'Passwords do not match' : '' })
+      setErrors(prev => ({ ...prev, passwordMatch: nextPassword && nextConfirm && nextPassword !== nextConfirm ? 'Passwords do not match' : '' }))
     }
   }
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
     if (form.password !== form.confirmPassword) {
-      setErrors({ passwordMatch: 'Passwords do not match' })
+      setErrors(prev => ({ ...prev, passwordMatch: 'Passwords do not match' }))
       return
     }
-    setErrors({ passwordMatch: '' })
+    setErrors({ passwordMatch: '', submit: '' })
     setLoading(true)
-    fetch('http://localhost:4000/api/users/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: form.username, email: form.email, password: form.password, role: form.role })
-    })
-      .then(async (res) => {
-        const data = await res.json()
-        if (!res.ok) throw new Error(data?.error || 'Registration failed')
-        // store token and user
-        if (data.token) localStorage.setItem('ac_token', data.token)
-        if (data.user) localStorage.setItem('ac_user', JSON.stringify(data.user))
-        navigate('/')
-      })
-      .catch((err) => setErrors((prev) => ({ ...prev, submit: err.message })))
-      .finally(() => setLoading(false))
+    try {
+      await signup(form.username, form.email, form.password, form.role)
+      navigate('/')
+    } catch (err) {
+      setErrors(prev => ({ ...prev, submit: err.message }))
+    }
+    setLoading(false)
   }
 
   return (

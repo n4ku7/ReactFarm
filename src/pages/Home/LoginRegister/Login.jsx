@@ -1,15 +1,16 @@
 import React from 'react'
 import { Box, Paper, Typography, TextField, Button, RadioGroup, FormControlLabel, Radio, FormLabel, Stack, Alert } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext'
 
 const Login = () => {
-    const [role, setRole] = React.useState('customer')
-
     const navigate = useNavigate()
+    const { login } = useAuth()
+    const [role, setRole] = React.useState('buyer')
     const [error, setError] = React.useState('')
     const [loading, setLoading] = React.useState(false)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
         const form = new FormData(e.currentTarget)
@@ -17,20 +18,13 @@ const Login = () => {
         const password = form.get('password')
         if (!email || !password) return setError('Email and password required')
         setLoading(true)
-        fetch('http://localhost:4000/api/users/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        })
-        .then(async (res) => {
-            const data = await res.json()
-            if (!res.ok) throw new Error(data?.error || 'Login failed')
-            if (data.token) localStorage.setItem('ac_token', data.token)
-            if (data.user) localStorage.setItem('ac_user', JSON.stringify(data.user))
+        try {
+            await login(email, password)
             navigate('/')
-        })
-        .catch((err) => setError(err.message))
-        .finally(() => setLoading(false))
+        } catch (err) {
+            setError(err.message)
+        }
+        setLoading(false)
     }
 
     return (
@@ -43,7 +37,7 @@ const Login = () => {
                         <FormLabel component="legend">Login as</FormLabel>
                         <RadioGroup row name="role" value={role} onChange={(e) => setRole(e.target.value)}>
                             <FormControlLabel value="farmer" control={<Radio />} label="Farmer" />
-                            <FormControlLabel value="customer" control={<Radio />} label="Customer" />
+                            <FormControlLabel value="buyer" control={<Radio />} label="Buyer" />
                             <FormControlLabel value="admin" control={<Radio />} label="Admin" />
                         </RadioGroup>
                     </div>

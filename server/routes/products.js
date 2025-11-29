@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import Product from '../models/Product.js'
+import { authMiddleware, requireRole } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -19,21 +20,34 @@ router.get('/:id', async (req, res) => {
 })
 
 // create product (farmers)
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, requireRole('farmer', 'admin'), async (req, res) => {
   const payload = req.body
+  // if farmer, set farmerId to the requester
+  if (req.user.role === 'farmer') payload.farmerId = String(req.user._id)
   const product = await Product.create(payload)
   res.status(201).json(product)
 })
 
 // update
-router.put('/:id', async (req, res) => {
-  const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true })
-  if (!updated) return res.status(404).json({ error: 'Not found' })
-  res.json(updated)
+router.put('/:id', authMiddleware, async (req, res) => {
+  const product = await Product.findById(req.params.id)
+  if (!product) return res.status(404).json({ error: 'Not found' })
+  // only admin or owning farmer can update
+  if (req.user.role !== 'admin' && String(product.farmerId) !== String(req.user._id)) {
+    return res.status(403).json({ error: 'Forbidden' })
+  }
+  Object.assign(product, req.body)
+  await product.save()
+  res.json(product)
 })
 
 // delete
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
+  const product = await Product.findById(req.params.id)
+  if (!product) return res.status(404).json({ error: 'Not found' })
+  if (req.user.role !== 'admin' && String(product.farmerId) !== String(req.user._id)) {
+    return res.status(403).json({ error: 'Forbidden' })
+  }
   await Product.findByIdAndDelete(req.params.id)
   res.status(204).end()
 })
