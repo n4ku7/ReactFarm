@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Card, CardContent, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress } from '@mui/material'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 
 const FarmerEarnings = () => {
   const { token } = useAuth()
