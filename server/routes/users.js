@@ -5,8 +5,9 @@ import { signToken } from '../middleware/auth.js'
 
 const router = Router()
 
-// list users (unsafe - for demo only)
-router.get('/', async (req, res) => {
+// list users (admin only)
+import { authMiddleware, requireRole } from '../middleware/auth.js'
+router.get('/', authMiddleware, requireRole('admin'), async (req, res) => {
   const users = await User.find().select('-password').limit(500)
   res.json(users)
 })

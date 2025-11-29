@@ -21,6 +21,15 @@ export const authMiddleware = async (req, res, next) => {
   }
 }
 
+export const requireRole = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ error: 'Unauthorized' })
+    if (allowedRoles.length === 0) return next()
+    if (!allowedRoles.includes(req.user.role)) return res.status(403).json({ error: 'Forbidden' })
+    next()
+  }
+}
+
 export const signToken = (user) => {
   const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d'
   return jwt.sign({ sub: user._id, role: user.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES })
