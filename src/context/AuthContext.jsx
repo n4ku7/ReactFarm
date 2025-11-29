@@ -71,11 +71,11 @@ export const AuthProvider = ({ children }) => {
     return data
   }
 
-  const login = async (email, password) => {
+  const login = async (email, password, recaptchaToken = '') => {
     const res = await fetch('/api/users/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, recaptchaToken })
     })
     const text = await res.text()
     let data = {}

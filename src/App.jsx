@@ -14,8 +14,10 @@ import AdminFeedbacks from './pages/AdminDashboard/Feedbacks'
 import AdminUsers from './pages/AdminDashboard/Users'
 import AdminOrders from './pages/AdminDashboard/Orders'
 import BuyerDashboard from './pages/BuyerDashboard/Index'
+import BuyerDashboardMain from './pages/BuyerDashboard/Dashboard'
 import BuyerOrders from './pages/BuyerDashboard/Orders'
 import BuyerCart from './pages/BuyerDashboard/Cart'
+import CartCheckout from './pages/BuyerDashboard/CartCheckout'
 import FarmerDashboard from './pages/FarmerDashboard/Index'
 import FarmerProducts from './pages/FarmerDashboard/Products'
 import FarmerOrders from './pages/FarmerDashboard/Orders'
@@ -50,9 +52,10 @@ const App = () => {
             <Route path="/farmer/earnings" element={<RoleRoute roles={['farmer']}><FarmerEarnings /></RoleRoute>} />
 
             {/* Buyer Routes */}
-            <Route path="/buyer" element={<RoleRoute roles={['buyer']}><BuyerDashboard /></RoleRoute>} />
+            <Route path="/buyer" element={<RoleRoute roles={['buyer']}><BuyerDashboardMain /></RoleRoute>} />
             <Route path="/orders" element={<RoleRoute roles={['buyer']}><BuyerOrders /></RoleRoute>} />
             <Route path="/cart" element={<RoleRoute roles={['buyer']}><BuyerCart /></RoleRoute>} />
+            <Route path="/checkout" element={<RoleRoute roles={['buyer']}><CartCheckout /></RoleRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

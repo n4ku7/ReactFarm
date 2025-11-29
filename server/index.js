@@ -9,6 +9,7 @@ import usersRouter from './routes/users.js'
 import ordersRouter from './routes/orders.js'
 import feedbacksRouter from './routes/feedbacks.js'
 import cartsRouter from './routes/carts.js'
+import paymentsRouter from './routes/payments.js'
 // local-file based routes (used when MONGODB_URI not set)
 import localUsersRouter from './localRoutes/users.js'
 import localProductsRouter from './localRoutes/products.js'
@@ -56,6 +57,7 @@ async function main() {
 			app.use('/api/orders', ordersRouter)
 			app.use('/api/feedbacks', feedbacksRouter)
 			app.use('/api/carts', cartsRouter)
+			app.use('/api/payments', paymentsRouter)
 		} catch (err) {
 			console.error('❌ Failed to connect to MongoDB:', err.message)
 			console.error('Falling back to local JSON DB')

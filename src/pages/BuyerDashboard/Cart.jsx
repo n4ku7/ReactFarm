@@ -1,73 +1,12 @@
 import React from 'react'
-import { Box, Button, Card, CardContent, CardMedia, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Alert } from '@mui/material'
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Alert } from '@mui/material'
 import { useCart } from '../../context/CartContext'
-import { useAuth } from '../../context/AuthContext'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 
 const BuyerCart = () => {
-  const { cart, removeFromCart, updateQuantity, clearCart, total } = useCart()
-  const { token } = useAuth()
-  const [dialogOpen, setDialogOpen] = React.useState(false)
-  const [submitting, setSubmitting] = React.useState(false)
-  const [message, setMessage] = React.useState({ type: '', text: '' })
-  const [billing, setBilling] = React.useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: ''
-  })
-
-  const handleCheckout = async () => {
-    if (!cart.length) {
-      setMessage({ type: 'error', text: 'Cart is empty' })
-      return
-    }
-    const { firstName, lastName, email, phone, address, city, state, zipCode } = billing
-    if (!firstName || !lastName || !email || !phone || !address || !city || !state || !zipCode) {
-      setMessage({ type: 'error', text: 'Please fill all billing details' })
-      return
-    }
-    setSubmitting(true)
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          items: cart,
-          total,
-          billing
-        })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Checkout failed')
-      setMessage({ type: 'success', text: 'Order placed successfully!' })
-      clearCart()
-      setDialogOpen(false)
-      setBilling({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: ''
-      })
-      setTimeout(() => window.location.hash = '/orders', 2000)
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message })
-    }
-    setSubmitting(false)
-  }
+  const { cart, removeFromCart, updateQuantity, total } = useCart()
 
   if (!cart.length) {
     return (
@@ -81,12 +20,6 @@ const BuyerCart = () => {
   return (
     <Box className="page-container">
       <Typography variant="h4" gutterBottom>Shopping Cart</Typography>
-
-      {message.text && (
-        <Alert severity={message.type} sx={{ mb: 2 }} onClose={() => setMessage({ type: '', text: '' })}>
-          {message.text}
-        </Alert>
-      )}
 
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         <Table>
@@ -133,86 +66,8 @@ const BuyerCart = () => {
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
         <Button variant="outlined" href="#/marketplace">Continue Shopping</Button>
-        <Button variant="contained" onClick={() => setDialogOpen(true)}>Proceed to Checkout</Button>
+        <Button variant="contained" onClick={() => window.location.hash = '/checkout'}>Proceed to Checkout</Button>
       </Box>
-
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Billing Details & Confirm Order</DialogTitle>
-        <DialogContent>
-          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>Shipping Address</Typography>
-            <TextField
-              label="First Name"
-              fullWidth
-              size="small"
-              value={billing.firstName}
-              onChange={(e) => setBilling({ ...billing, firstName: e.target.value })}
-            />
-            <TextField
-              label="Last Name"
-              fullWidth
-              size="small"
-              value={billing.lastName}
-              onChange={(e) => setBilling({ ...billing, lastName: e.target.value })}
-            />
-            <TextField
-              label="Email"
-              type="email"
-              fullWidth
-              size="small"
-              value={billing.email}
-              onChange={(e) => setBilling({ ...billing, email: e.target.value })}
-            />
-            <TextField
-              label="Phone"
-              fullWidth
-              size="small"
-              value={billing.phone}
-              onChange={(e) => setBilling({ ...billing, phone: e.target.value })}
-            />
-            <TextField
-              label="Address"
-              fullWidth
-              size="small"
-              value={billing.address}
-              onChange={(e) => setBilling({ ...billing, address: e.target.value })}
-            />
-            <TextField
-              label="City"
-              fullWidth
-              size="small"
-              value={billing.city}
-              onChange={(e) => setBilling({ ...billing, city: e.target.value })}
-            />
-            <TextField
-              label="State"
-              fullWidth
-              size="small"
-              value={billing.state}
-              onChange={(e) => setBilling({ ...billing, state: e.target.value })}
-            />
-            <TextField
-              label="ZIP Code"
-              fullWidth
-              size="small"
-              value={billing.zipCode}
-              onChange={(e) => setBilling({ ...billing, zipCode: e.target.value })}
-            />
-            <Typography variant="body2" gutterBottom>
-              You are about to place an order with {cart.length} item(s)
-            </Typography>
-            <Typography variant="h6" sx={{ mt: 2 }}>
-              Total Amount: ₹{total.toFixed(2)}
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} disabled={submitting}>Cancel</Button>
-          <Button variant="contained" onClick={handleCheckout} disabled={submitting}>
-            {submitting ? 'Processing...' : 'Confirm Order'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   )
 }

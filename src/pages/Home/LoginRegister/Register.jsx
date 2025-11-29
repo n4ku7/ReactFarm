@@ -7,7 +7,6 @@ const Register = () => {
   const navigate = useNavigate()
   const { signup } = useAuth()
   const [form, setForm] = React.useState({
-    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -35,7 +34,7 @@ const Register = () => {
     setErrors({ passwordMatch: '', submit: '' })
     setLoading(true)
     try {
-      await signup(form.username, form.email, form.password, form.role)
+      await signup('', form.email, form.password, form.role)
       navigate('/')
     } catch (err) {
       setErrors(prev => ({ ...prev, submit: err.message }))
@@ -49,14 +48,6 @@ const Register = () => {
         <Typography variant="h5" gutterBottom>Create your account</Typography>
         <Stack component="form" onSubmit={onSubmit} spacing={2}>
           {errors.submit && <Alert severity="error">{errors.submit}</Alert>}
-          <TextField
-            name="username"
-            label="Username"
-            required
-            fullWidth
-            value={form.username}
-            onChange={onChange}
-          />
           <div>
             <FormLabel component="legend">Sign up as</FormLabel>
             <RadioGroup row name="role" value={form.role} onChange={onChange}>
