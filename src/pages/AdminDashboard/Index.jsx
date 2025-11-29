@@ -1,4 +1,5 @@
 import { Card, CardContent, Typography, Grid, Button } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
 
 const stat = (title, value) => (
   <Card>
@@ -28,7 +29,8 @@ const AdminDashboard = () => (
     </Card>
 
     <div style={{ marginTop: 16 }}>
-      <Button variant="contained" color="primary">Go to Platform Settings</Button>
+        <Button variant="contained" color="primary" component={RouterLink} to="/admin/feedbacks" sx={{ mr: 2 }}>View Feedbacks</Button>
+        <Button variant="contained" color="primary">Go to Platform Settings</Button>
     </div>
   </div>
 )

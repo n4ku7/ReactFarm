@@ -32,6 +32,15 @@ const Home = () => (
         </Card>
       </Box>
     </Box>
+    
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h5" component="h2">Our Aim</Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+        AgriCraft aims to create transparent, fair, and efficient market access for small and medium farmers by
+        providing them with tools to list products, reach new buyers, and manage orders — while giving buyers
+        discovery tools to find high-quality, responsibly produced agricultural goods.
+      </Typography>
+    </Box>
   </div>
 )
 

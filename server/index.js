@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 import productsRouter from './routes/products.js'
 import usersRouter from './routes/users.js'
 import ordersRouter from './routes/orders.js'
+import feedbacksRouter from './routes/feedbacks.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -15,6 +16,7 @@ app.use(express.json())
 app.use('/api/products', productsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/orders', ordersRouter)
+app.use('/api/feedbacks', feedbacksRouter)
 
 app.get('/api/health', (req, res) => res.json({ ok: true }))
 

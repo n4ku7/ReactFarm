@@ -9,6 +9,7 @@ import Contact from './pages/Home/Contact'
 import Login from './pages/Home/LoginRegister/Login'
 import Register from './pages/Home/LoginRegister/Register'
 import AdminDashboard from './pages/AdminDashboard/Index'
+import AdminFeedbacks from './pages/AdminDashboard/Feedbacks'
 import BuyerDashboard from './pages/BuyerDashboard/Index'
 import FarmerDashboard from './pages/FarmerDashboard/Index'
 import GlobalMarketplace from './pages/GlobalMarketplace/Categories'
@@ -27,6 +28,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Register />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/feedbacks" element={<AdminFeedbacks />} />
             <Route path="/buyer" element={<BuyerDashboard />} />
             <Route path="/farmer" element={<FarmerDashboard />} />
             <Route path="/marketplace" element={<GlobalMarketplace />} />
