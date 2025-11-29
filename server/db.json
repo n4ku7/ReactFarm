@@ -7,8 +7,7 @@
       "email": "naku47@gmail.com",
       "password": "$2b$10$8bXOIw1a1pYadM96H48/ye9JDyv6ER4guggD28PAXadObi6LDclx2",
       "role": "admin",
-      "createdAt": "2025-11-29T16:59:36.318Z",
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJLcTFkZlg2eWFaNm45Y3htb2VKa3MiLCJpYXQiOjE3NjQ0MzU3MzcsImV4cCI6MTc2NzAyNzczN30.gORZtMF74LSqQ4eFlpCMYGzYM-cZ2IsfYAsqrYRBaSw"
+      "createdAt": "2025-11-29T16:59:36.318Z"
     }
   ],
   "orders": [],
