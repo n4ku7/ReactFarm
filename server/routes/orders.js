@@ -27,10 +27,32 @@ router.get('/', authMiddleware, async (req, res) => {
 
 // create order - buyer only
 router.post('/', authMiddleware, requireRole('buyer'), async (req, res) => {
-  const payload = req.body
-  payload.buyerId = String(req.user._id)
-  const order = await Order.create(payload)
-  res.status(201).json(order)
+  try {
+    const payload = req.body || {}
+    // basic validation
+    if (!Array.isArray(payload.items) || payload.items.length === 0) return res.status(400).json({ error: 'No items in order' })
+    // normalize items: ensure productId, quantity and price present
+    const items = payload.items.map((it) => {
+      const productId = it.productId || it.id || it._id || null
+      const quantity = Number(it.quantity || it.qty || 0)
+      const price = Number(it.price || 0)
+      return { productId, title: it.title || it.name || '', price, quantity }
+    })
+    if (items.some(i => !i.productId || !i.quantity || isNaN(i.price))) {
+      return res.status(400).json({ error: 'Invalid order items' })
+    }
+    const orderPayload = {
+      buyerId: String(req.user._id),
+      items,
+      total: Number(payload.total || items.reduce((s, x) => s + (x.price * x.quantity), 0)),
+      meta: payload.meta || {}
+    }
+    const order = await Order.create(orderPayload)
+    res.status(201).json(order)
+  } catch (err) {
+    console.error('Failed to create order', err && err.stack ? err.stack : err)
+    res.status(500).json({ error: err.message || 'Failed to create order' })
+  }
 })
 
 // update order status - admin only

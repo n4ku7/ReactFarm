@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, Grid, Paper, Typography, TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel, Chip, Stack, Divider, Button } from '@mui/material'
 import { Search as SearchIcon, FilterAlt as FilterAltIcon, Sort as SortIcon } from '@mui/icons-material'
 import ProductCard from '../../components/common/ProductCard'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 
 const ALL_PRODUCTS = [
@@ -22,18 +22,55 @@ const Marketplace = () => {
   const [search, setSearch] = React.useState(q)
   const [category, setCategory] = React.useState('All')
   const [sortBy, setSortBy] = React.useState('relevance')
+  const [products, setProducts] = React.useState(ALL_PRODUCTS)
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState(null)
   const { addToCart } = useCart()
+  const navigate = useNavigate()
+
+  // fetch products from backend; fall back to ALL_PRODUCTS on error
+  React.useEffect(() => {
+    let mounted = true
+    const fetchProducts = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch('/api/products')
+        const text = await res.text()
+        let data = null
+        try { data = text ? JSON.parse(text) : null } catch (e) { data = null }
+        if (!res.ok) {
+          const errPayload = { url: '/api/products', status: res.status, body: text }
+          localStorage.setItem('lastApiError', JSON.stringify(errPayload))
+          throw new Error(`HTTP ${res.status}: ${text || 'No response body'}`)
+        }
+        if (mounted && Array.isArray(data) && data.length > 0) {
+          setProducts(data)
+        } else {
+          // no usable data — store raw response for debugging
+          if (text) localStorage.setItem('lastApiResponse_products', text)
+        }
+      } catch (err) {
+        // keep fallback products and set error
+        setError(err.message || 'Failed to load products')
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }
+    fetchProducts()
+    return () => { mounted = false }
+  }, [])
 
   const filtered = React.useMemo(() => {
-    let items = ALL_PRODUCTS.filter(p =>
-      (!q || p.title.toLowerCase().includes(q.toLowerCase())) &&
+    let items = (products || []).filter(p =>
+      (!q || (p.title || '').toLowerCase().includes(q.toLowerCase())) &&
       (category === 'All' || p.category === category)
     )
-    if (sortBy === 'priceAsc') items = items.slice().sort((a, b) => a.price - b.price)
-    if (sortBy === 'priceDesc') items = items.slice().sort((a, b) => b.price - a.price)
-    if (sortBy === 'rating') items = items.slice().sort((a, b) => b.rating - a.rating)
+    if (sortBy === 'priceAsc') items = items.slice().sort((a, b) => (a.price || 0) - (b.price || 0))
+    if (sortBy === 'priceDesc') items = items.slice().sort((a, b) => (b.price || 0) - (a.price || 0))
+    if (sortBy === 'rating') items = items.slice().sort((a, b) => (b.rating || 0) - (a.rating || 0))
     return items
-  }, [q, category, sortBy])
+  }, [products, q, category, sortBy])
 
   const applySearch = (e) => {
     e.preventDefault()
@@ -90,8 +127,11 @@ const Marketplace = () => {
 
       <Grid container spacing={2}>
         {filtered.map(p => (
-          <Grid item key={p.id} xs={12} sm={6} md={4} lg={3}>
-            <ProductCard product={p} onAddToCart={(product) => addToCart({ productId: p.id, title: p.title, price: p.price, quantity: 1 })} />
+          <Grid item key={p.id || p._id || p.productId} xs={12} sm={6} md={4} lg={3}>
+            <ProductCard product={p} onAddToCart={() => {
+              addToCart(p, 1)
+              navigate('/cart')
+            }} />
           </Grid>
         ))}
       </Grid>

@@ -30,6 +30,16 @@ router.post('/signup', async (req, res) => {
   const refreshToken = signRefreshToken(user)
   user.refreshToken = refreshToken
   db.data.users.push(user)
+  // also add a registry entry in the local JSON DB
+  db.data.registry = db.data.registry || []
+  try {
+    const reg = { key: `user:${user.id}`, value: { id: user.id, email: user.email, name: user.name, role: user.role }, source: 'signup', createdAt: new Date().toISOString() }
+    // replace existing registry entry with same key if present
+    const idx = db.data.registry.findIndex(r => String(r.key) === String(reg.key))
+    if (idx === -1) db.data.registry.push(reg); else db.data.registry[idx] = reg
+  } catch (err) {
+    console.error('[localRoutes/users] failed to write registry entry', err && err.message ? err.message : err)
+  }
   await db.write()
   const token = signToken(user)
   res.status(201).json({ token, refreshToken, user: { id: user.id, email: user.email, name: user.name, role: user.role } })

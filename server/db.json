@@ -7,7 +7,8 @@
       "email": "naku47@gmail.com",
       "password": "$2b$10$8bXOIw1a1pYadM96H48/ye9JDyv6ER4guggD28PAXadObi6LDclx2",
       "role": "admin",
-      "createdAt": "2025-11-29T16:59:36.318Z"
+      "createdAt": "2025-11-29T16:59:36.318Z",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJLcTFkZlg2eWFaNm45Y3htb2VKa3MiLCJpYXQiOjE3NjQ0MzU3MzcsImV4cCI6MTc2NzAyNzczN30.gORZtMF74LSqQ4eFlpCMYGzYM-cZ2IsfYAsqrYRBaSw"
     }
   ],
   "orders": [],
@@ -21,6 +22,30 @@
       "message": "lolololololo",
       "consent": true,
       "createdAt": "2025-11-29T16:13:36.154Z"
+    }
+  ],
+  "registry": [
+    {
+      "key": "user:_750YlYW2xcUR9iHhfb1v",
+      "value": {
+        "id": "_750YlYW2xcUR9iHhfb1v",
+        "email": "2400032519@kluniversity.in",
+        "name": "2400032519",
+        "role": "farmer"
+      },
+      "source": "signup",
+      "createdAt": "2025-11-29T21:04:27.689Z"
+    },
+    {
+      "key": "user:3yOQnw_K09jMKtwKvv50q",
+      "value": {
+        "id": "3yOQnw_K09jMKtwKvv50q",
+        "email": "apitest+1@example.com",
+        "name": "API Test",
+        "role": "buyer"
+      },
+      "source": "signup",
+      "createdAt": "2025-11-29T22:13:41.675Z"
     }
   ]
 }

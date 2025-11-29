@@ -1,8 +1,10 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardMedia, CardContent, Typography, CardActions, Button, Chip, Stack } from '@mui/material'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 const ProductCard = ({ product, onAddToCart }) => {
+  const navigate = useNavigate()
   const { title, price, image, rating, category } = product
   return (
     <Card>
@@ -18,7 +20,15 @@ const ProductCard = ({ product, onAddToCart }) => {
         <Typography variant="h6">₹{price.toFixed(2)}</Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" variant="contained" startIcon={<ShoppingCartIcon />} onClick={() => onAddToCart?.(product)}>
+        <Button
+          size="small"
+          variant="contained"
+          startIcon={<ShoppingCartIcon />}
+          onClick={() => {
+            try { onAddToCart?.(product) } catch (e) { /* ignore */ }
+            navigate('/cart')
+          }}
+        >
           Add to Cart
         </Button>
       </CardActions>

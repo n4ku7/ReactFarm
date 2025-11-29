@@ -25,14 +25,24 @@ async function main() {
 	// If a MongoDB URI is provided, use mongoose-backed routes.
 	if (MONGODB_URI) {
 		try {
-			await mongoose.connect(MONGODB_URI, { dbName: process.env.MONGODB_DB || undefined })
-			console.log('Connected to MongoDB')
+			// set some mongoose defaults and explicit TLS options for cloud connections
+			mongoose.set('strictQuery', false)
+			const connOpts = {
+				dbName: process.env.MONGODB_DB || undefined,
+				useNewUrlParser: true,
+				useUnifiedTopology: true,
+				tls: true
+			}
+			await mongoose.connect(MONGODB_URI, connOpts)
+			// connection succeeded — do not log the raw URI or credentials
+			console.log('Connected to MongoDB Atlas')
 			app.use('/api/products', productsRouter)
 			app.use('/api/users', usersRouter)
 			app.use('/api/orders', ordersRouter)
 			app.use('/api/feedbacks', feedbacksRouter)
 		} catch (err) {
-			console.error('Failed to connect to MongoDB, falling back to local JSON DB', err)
+			console.error('Failed to connect to MongoDB Atlas — falling back to local JSON DB')
+			console.error(err && err.message ? err.message : err)
 		}
 	}
 

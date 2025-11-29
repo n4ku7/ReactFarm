@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import bcrypt from 'bcrypt'
 import User from '../models/User.js'
+import Registry from '../models/Registry.js'
 import { signToken } from '../middleware/auth.js'
 
 const router = Router()
@@ -21,6 +22,17 @@ router.post('/signup', async (req, res) => {
   const hash = await bcrypt.hash(password, 10)
   const user = await User.create({ name, email, password: hash, role: role || 'buyer' })
   const token = signToken(user)
+  // add a lightweight registry entry for this new user (no password)
+  try {
+    const regKey = `user:${String(user._id)}`
+    const regVal = { id: String(user._id), email: user.email, name: user.name, role: user.role }
+    // upsert registry record
+    await Registry.updateOne({ key: regKey }, { $set: { key: regKey, value: regVal, source: 'signup' } }, { upsert: true })
+  } catch (e) {
+    // don't block signup on registry failures; log and continue
+    console.error('Failed to write registry entry for user signup', e && e.message ? e.message : e)
+  }
+
   res.status(201).json({ token, user: { id: user._id, email: user.email, name: user.name, role: user.role } })
 })
 

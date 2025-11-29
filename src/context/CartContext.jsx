@@ -18,20 +18,27 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product, quantity = 1) => {
     setCart(prev => {
-      const existing = prev.find(item => item.productId === product._id)
+      // support both full product objects and minimal payloads
+      // payload can be: { _id, title, price, images } or { id|productId, title, price }
+      const pid = product && (product._id || product.productId || product.id || product.externalId)
+      const title = product && (product.title || product.name)
+      const price = product && (product.price || 0)
+      const image = product && (product.images?.[0] || product.image || '')
+
+      const existing = prev.find(item => item.productId === pid)
       if (existing) {
         return prev.map(item =>
-          item.productId === product._id
+          item.productId === pid
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
       }
       return [...prev, {
-        productId: product._id,
-        title: product.title,
-        price: product.price,
+        productId: pid,
+        title,
+        price,
         quantity,
-        image: product.images?.[0] || ''
+        image
       }]
     })
   }

@@ -2,13 +2,15 @@ import React from 'react'
 import { Box, Button, Card, CardContent, CardMedia, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Alert } from '@mui/material'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 
 const BuyerCart = () => {
   const { cart, removeFromCart, updateQuantity, clearCart, total } = useCart()
-  const { token } = useAuth()
+  const { token, refreshAccess } = useAuth()
+  const navigate = useNavigate()
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
   const [message, setMessage] = React.useState({ type: '', text: '' })
@@ -28,6 +30,17 @@ const BuyerCart = () => {
       setMessage({ type: 'error', text: 'Cart is empty' })
       return
     }
+    if (!token) {
+      // try silent refresh with refresh token before forcing login
+      setMessage({ type: 'info', text: 'Checking session...' })
+      const refreshed = await (refreshAccess ? refreshAccess() : Promise.resolve(false))
+      if (!refreshed) {
+        setMessage({ type: 'error', text: 'You must be logged in to place an order. Redirecting to login...' })
+        setTimeout(() => navigate('/login'), 1200)
+        return
+      }
+      // token refreshed, proceed
+    }
     const { firstName, lastName, email, phone, address, city, state, zipCode } = billing
     if (!firstName || !lastName || !email || !phone || !address || !city || !state || !zipCode) {
       setMessage({ type: 'error', text: 'Please fill all billing details' })
@@ -38,8 +51,7 @@ const BuyerCart = () => {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           items: cart,
@@ -47,8 +59,18 @@ const BuyerCart = () => {
           billing
         })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Checkout failed')
+      const text = await res.text()
+      let data = null
+      try { data = text ? JSON.parse(text) : null } catch (e) { data = null }
+      if (!res.ok) {
+        const errPayload = { url: '/api/orders', status: res.status, body: text }
+        localStorage.setItem('lastApiError_orders', JSON.stringify(errPayload))
+        throw new Error((data && data.error) || text || `HTTP ${res.status}`)
+      }
+      if (!data) {
+        localStorage.setItem('lastApiResponse_orders', text)
+        throw new Error('Invalid server response')
+      }
       setMessage({ type: 'success', text: 'Order placed successfully!' })
       clearCart()
       setDialogOpen(false)
