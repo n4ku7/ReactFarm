@@ -9,6 +9,8 @@ const AdminOrders = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [selectedOrder, setSelectedOrder] = React.useState(null)
   const [newStatus, setNewStatus] = React.useState('pending')
+  const [trackingNumber, setTrackingNumber] = React.useState('')
+  const [shippingProvider, setShippingProvider] = React.useState('')
 
   React.useEffect(() => {
     const fetchOrders = async () => {
@@ -28,18 +30,25 @@ const AdminOrders = () => {
 
   const handleStatusUpdate = async () => {
     try {
+      const updateData = { status: newStatus }
+      if (trackingNumber) updateData.trackingNumber = trackingNumber
+      if (shippingProvider) updateData.shippingProvider = shippingProvider
+
       const res = await fetch(`/api/orders/${selectedOrder._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify(updateData)
       })
       if (res.ok) {
-        setOrders(prev => prev.map(o => o._id === selectedOrder._id ? { ...o, status: newStatus } : o))
+        const updatedOrder = await res.json()
+        setOrders(prev => prev.map(o => o._id === selectedOrder._id ? updatedOrder : o))
         setDialogOpen(false)
         setSelectedOrder(null)
+        setTrackingNumber('')
+        setShippingProvider('')
       }
     } catch (err) {
       console.error(err)
@@ -69,6 +78,7 @@ const AdminOrders = () => {
                 <TableCell align="right"><strong>Total</strong></TableCell>
                 <TableCell align="center"><strong>Items</strong></TableCell>
                 <TableCell><strong>Status</strong></TableCell>
+                <TableCell><strong>Tracking</strong></TableCell>
                 <TableCell><strong>Date</strong></TableCell>
                 <TableCell align="center"><strong>Action</strong></TableCell>
               </TableRow>
@@ -77,7 +87,9 @@ const AdminOrders = () => {
               {orders.map(order => (
                 <TableRow key={order._id}>
                   <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{order._id?.slice(-8)}</TableCell>
-                  <TableCell sx={{ fontSize: '0.85rem' }}>{order.buyerId?.slice(-6) || 'N/A'}</TableCell>
+                  <TableCell sx={{ fontSize: '0.85rem' }}>
+                    {order.buyerId?.name || order.buyerId?.email || String(order.buyerId?._id || order.buyerId || '').slice(-6) || 'N/A'}
+                  </TableCell>
                   <TableCell align="right">₹{order.total?.toFixed(2) || '0.00'}</TableCell>
                   <TableCell align="center">{order.items?.length || 0}</TableCell>
                   <TableCell>
@@ -88,6 +100,18 @@ const AdminOrders = () => {
                       variant="outlined"
                     />
                   </TableCell>
+                  <TableCell sx={{ fontSize: '0.75rem' }}>
+                    {order.tracking?.trackingNumber ? (
+                      <Box>
+                        <Typography variant="caption" display="block">{order.tracking.trackingNumber}</Typography>
+                        {order.tracking.shippingProvider && (
+                          <Typography variant="caption" color="text.secondary">{order.tracking.shippingProvider}</Typography>
+                        )}
+                      </Box>
+                    ) : (
+                      <Typography variant="caption" color="text.secondary">No tracking</Typography>
+                    )}
+                  </TableCell>
                   <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell align="center">
                     <Button
@@ -96,6 +120,8 @@ const AdminOrders = () => {
                       onClick={() => {
                         setSelectedOrder(order)
                         setNewStatus(order.status || 'pending')
+                        setTrackingNumber(order.tracking?.trackingNumber || '')
+                        setShippingProvider(order.tracking?.shippingProvider || '')
                         setDialogOpen(true)
                       }}
                     >
@@ -109,10 +135,10 @@ const AdminOrders = () => {
         </TableContainer>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Update Order Status</DialogTitle>
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Update Order Status & Tracking</DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               select
               label="Status"
@@ -129,10 +155,30 @@ const AdminOrders = () => {
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </TextField>
+            <TextField
+              label="Tracking Number"
+              fullWidth
+              size="small"
+              value={trackingNumber}
+              onChange={(e) => setTrackingNumber(e.target.value)}
+              placeholder="Enter tracking number"
+            />
+            <TextField
+              label="Shipping Provider"
+              fullWidth
+              size="small"
+              value={shippingProvider}
+              onChange={(e) => setShippingProvider(e.target.value)}
+              placeholder="e.g., FedEx, UPS, DHL"
+            />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => {
+            setDialogOpen(false)
+            setTrackingNumber('')
+            setShippingProvider('')
+          }}>Cancel</Button>
           <Button variant="contained" onClick={handleStatusUpdate}>Update</Button>
         </DialogActions>
       </Dialog>
