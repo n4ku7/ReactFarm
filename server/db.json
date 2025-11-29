@@ -1,5 +1,30 @@
 {
-  "products": [],
+  "products": [
+    {
+      "id": "p1",
+      "title": "Fresh Red Apples (1 kg)",
+      "price": 160,
+      "image": "/images/products/apple.svg",
+      "rating": 4.5,
+      "category": "Fruits"
+    },
+    {
+      "id": "p2",
+      "title": "Organic Basmati Rice (5 kg)",
+      "price": 4200,
+      "image": "/images/products/rice.svg",
+      "rating": 4.7,
+      "category": "Grains"
+    },
+    {
+      "id": "p3",
+      "title": "Yellow Onions (1 kg)",
+      "price": 48,
+      "image": "/images/products/onion.svg",
+      "rating": 4.2,
+      "category": "Vegetables"
+    }
+  ],
   "users": [],
   "orders": [],
   "feedbacks": []

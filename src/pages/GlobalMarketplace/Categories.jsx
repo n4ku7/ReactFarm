@@ -5,12 +5,12 @@ import ProductCard from '../../components/common/ProductCard'
 import { useSearchParams } from 'react-router-dom'
 
 const ALL_PRODUCTS = [
-  { id: 1, title: 'Organic Honey 500g', price: 9.99, category: 'Honey', rating: 4.6, image: 'https://images.unsplash.com/photo-1517260739337-6799d151febb?q=80&w=800&auto=format&fit=crop' },
+  { id: 1, title: 'Organic Honey 500g', price: 9.99, category: 'Honey', rating: 4.6, image: 'https://spiisry.in/wp-content/uploads/2021/06/Honey-PNG-Transparent-Image.png' },
   { id: 2, title: 'Free-range Eggs (12 pack)', price: 4.5, category: 'Eggs', rating: 4.4, image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=800&auto=format&fit=crop' },
   { id: 3, title: 'Extra Virgin Olive Oil 1L', price: 12.0, category: 'Oils', rating: 4.7, image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=800&auto=format&fit=crop' },
   { id: 4, title: 'Almonds 1kg', price: 14.99, category: 'Nuts', rating: 4.5, image: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?q=80&w=800&auto=format&fit=crop' },
-  { id: 5, title: 'Sun-dried Tomatoes 250g', price: 6.5, category: 'Vegetables', rating: 4.2, image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=800&auto=format&fit=crop' },
-  { id: 6, title: 'Goat Cheese 200g', price: 7.25, category: 'Dairy', rating: 4.3, image: 'https://images.unsplash.com/photo-1552767059-ce78228bb02a?q=80&w=800&auto=format&fit=crop' },
+  { id: 5, title: 'Sun-dried Tomatoes 250g', price: 6.5, category: 'Vegetables', rating: 4.2, image: 'https://panettamercato.com.au/wp-content/uploads/2021/07/Tomatoes-Semi-Dried-250g-Panneta-Mercato.png' },
+  { id: 6, title: 'Goat Cheese 200g', price: 7.25, category: 'Dairy', rating: 4.3, image: 'https://m.media-amazon.com/images/I/61vq-5dGCxL._SX679_.jpg' },
 ]
 
 const categories = ['All', 'Honey', 'Eggs', 'Oils', 'Nuts', 'Vegetables', 'Dairy']

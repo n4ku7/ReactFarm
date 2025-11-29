@@ -1,107 +1,135 @@
-import React from 'react'
+import React, { useState } from 'react'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
-import MenuItem from '@mui/material/MenuItem'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
-import Rating from '@mui/material/Rating'
+import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
-
-const topics = ['General', 'Product Feedback', 'Shipping', 'Other']
+import Divider from '@mui/material/Divider'
+import InputAdornment from '@mui/material/InputAdornment'
+import PhoneIcon from '@mui/icons-material/Phone'
+import EmailIcon from '@mui/icons-material/Email'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
+import SendIcon from '@mui/icons-material/Send'
 
 const Contact = () => {
-  const [open, setOpen] = React.useState(false)
-  const [submitting, setSubmitting] = React.useState(false)
-  const [form, setForm] = React.useState({ name: '', email: '', topic: 'General', rating: 0, message: '', consent: false })
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
+  const [submitting, setSubmitting] = useState(false)
+  const [snack, setSnack] = useState({ open: false, severity: 'success', message: '' })
 
-  const openForm = () => setOpen(true)
-  const closeForm = () => setOpen(false)
+  const onChange = (field) => (e) => setForm((s) => ({ ...s, [field]: e.target.value }))
 
-  const onChange = (field) => (e) => {
-    const value = field === 'consent' ? e.target.checked : e.target.value
-    setForm((s) => ({ ...s, [field]: value }))
+  const isEmailValid = (email) => {
+    if (!email) return true // optional
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
-  const [snack, setSnack] = React.useState({ open: false, severity: 'success', message: '' })
-
-  const isValid = () => {
-    // require message at least 10 chars
-    return form.message && form.message.trim().length >= 10
+  const validate = () => {
+    if (!form.subject || form.subject.trim().length < 3) return { ok: false, msg: 'Please enter a subject (3+ characters).' }
+    if (!form.message || form.message.trim().length < 10) return { ok: false, msg: 'Message should be at least 10 characters.' }
+    if (!isEmailValid(form.email)) return { ok: false, msg: 'Please enter a valid email address.' }
+    return { ok: true }
   }
 
-  const submit = async () => {
-    if (!isValid()) {
-      setSnack({ open: true, severity: 'error', message: 'Please enter a message of at least 10 characters.' })
+  const handleSubmit = async (e) => {
+    e && e.preventDefault()
+    const v = validate()
+    if (!v.ok) {
+      setSnack({ open: true, severity: 'error', message: v.msg })
       return
     }
-
     setSubmitting(true)
     try {
       const res = await fetch('http://localhost:4000/api/feedbacks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ name: form.name, email: form.email, subject: form.subject, message: form.message })
       })
-      if (!res.ok) throw new Error('Failed')
-      const data = await res.json()
-      setSnack({ open: true, severity: 'success', message: 'Thank you — your feedback was submitted.' })
-      setForm({ name: '', email: '', topic: 'General', rating: 0, message: '', consent: false })
-      closeForm()
+      if (!res.ok) throw new Error('Network response was not ok')
+      setSnack({ open: true, severity: 'success', message: 'Thanks — we received your message and will get back shortly.' })
+      setForm({ name: '', email: '', subject: '', message: '' })
     } catch (err) {
       console.error(err)
-      setSnack({ open: true, severity: 'error', message: 'Could not submit feedback. Please try again later.' })
+      setSnack({ open: true, severity: 'error', message: 'Could not send message. Please try again later.' })
     }
     setSubmitting(false)
   }
 
   return (
-    <div className="page-container">
-      <Typography variant="h4" component="h1">Contact Us</Typography>
-      <Typography sx={{ mt: 1 }}>Need help or want to share feedback? We’d love to hear from you.</Typography>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>Contact Us</Typography>
+      <Typography color="text.secondary" sx={{ mb: 3 }}>Questions, partnership inquiries or feedback — we’re happy to help. Use the form or reach us through the contact details.</Typography>
 
-      <Box sx={{ mt: 3 }}>
-        <Button variant="contained" onClick={openForm}>Send Feedback</Button>
-      </Box>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={5}>
+          <Paper elevation={1} sx={{ p: 3 }}>
+            <Typography variant="h6">Get in touch</Typography>
+            <Typography color="text.secondary" sx={{ mt: 1, mb: 2 }}>Our team typically replies within 1 business day.</Typography>
 
-      <Dialog open={open} onClose={closeForm} fullWidth maxWidth="sm">
-        <DialogTitle>Send Feedback</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField label="Name (optional)" value={form.name} onChange={onChange('name')} fullWidth />
-            <TextField label="Email (optional)" value={form.email} onChange={onChange('email')} fullWidth />
-            <TextField select label="Topic" value={form.topic} onChange={onChange('topic')}>
-              {topics.map((t) => (
-                <MenuItem key={t} value={t}>{t}</MenuItem>
-              ))}
-            </TextField>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography>Rating</Typography>
-              <Rating value={form.rating} onChange={(e, v) => setForm((s) => ({ ...s, rating: v || 0 }))} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <PhoneIcon color="action" />
+              <Typography>+91 98765 43210</Typography>
             </Box>
 
-            <TextField label="Message" value={form.message} onChange={onChange('message')} multiline rows={4} fullWidth />
-            <FormControlLabel control={<Checkbox checked={form.consent} onChange={onChange('consent')} />} label="I consent to my feedback being stored for product improvement (optional)" />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-            <Button onClick={closeForm} disabled={submitting}>Cancel</Button>
-            <Button onClick={submit} variant="contained" disabled={submitting || !isValid()}>Send</Button>
-        </DialogActions>
-      </Dialog>
-        <Snackbar open={snack.open} autoHideDuration={4000} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
-          <Alert severity={snack.severity} onClose={() => setSnack((s) => ({ ...s, open: false }))} sx={{ width: '100%' }}>
-            {snack.message}
-          </Alert>
-        </Snackbar>
-    </div>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <EmailIcon color="action" />
+              <Typography>support@agricraft.example</Typography>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LocationOnIcon color="action" />
+              <Typography>Chennai, India</Typography>
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2" color="text.secondary">Business hours</Typography>
+            <Typography color="text.secondary">Mon — Fri: 9:00 AM — 6:00 PM IST</Typography>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={7}>
+          <Paper elevation={1} sx={{ p: 3 }} component="form" onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Your name" value={form.name} onChange={onChange('name')} fullWidth placeholder="First & last name" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Email"
+                  value={form.email}
+                  onChange={onChange('email')}
+                  fullWidth
+                  placeholder="you@company.com"
+                  InputProps={{ startAdornment: (<InputAdornment position="start"><EmailIcon /></InputAdornment>) }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField label="Subject" value={form.subject} onChange={onChange('subject')} fullWidth placeholder="What is this regarding?" />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField label="Message" value={form.message} onChange={onChange('message')} fullWidth multiline rows={6} placeholder="Tell us more — be as specific as you can." />
+              </Grid>
+
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button variant="outlined" sx={{ mr: 2 }} onClick={() => setForm({ name: '', email: '', subject: '', message: '' })} disabled={submitting}>Clear</Button>
+                <Button type="submit" variant="contained" endIcon={<SendIcon />} disabled={submitting}>Send Message</Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      <Snackbar open={snack.open} autoHideDuration={4000} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
+        <Alert severity={snack.severity} onClose={() => setSnack((s) => ({ ...s, open: false }))} sx={{ width: '100%' }}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
+    </Container>
   )
 }
 
