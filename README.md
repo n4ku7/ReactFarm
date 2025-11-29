@@ -22,59 +22,82 @@ AgriCraft is a demo marketplace connecting farmers and buyers. This repository c
 
 Quick tech summary:
 - React 18
-- Vite
-- Material UI (MUI)
+```markdown
+# 🌾 AgriCraft (React)
 
-## Project layout (important files)
-- `public/index.html` — HTML entry
-- `src/main.jsx` — app entry and Router
-- `src/App.jsx` — routes and layout
-- `src/components/common/` — Navbar, Footer, ThemeProvider
-- `src/pages/` — app pages
-- `vite.config.js` — dev server config
-- `package.json` — scripts
-- `server/` — optional Express backend (added)
+AgriCraft is a demo marketplace that connects farmers and buyers. This repository contains a Vite + React frontend and a small optional Express backend for local development and prototyping.
 
-## Run (frontend)
-1. Install dependencies
+---
 
-```cmd
+**Tech stack:** React 18, Vite, Material UI (MUI), Node/Express (optional backend)
+
+---
+
+**Quick start (frontend)**
+
+- **Install dependencies:**
+
+```powershell
 npm install
 ```
 
-2. Start dev server
+- **Start dev server:**
 
-```cmd
+```powershell
 npm run dev
 ```
 
-Open http://localhost:5174 (or the port Vite shows) in your browser.
+Open `http://localhost:5174` (or the port Vite displays) in your browser.
 
-## Optional backend
+**Optional backend (for local API)**
 
-The `server/` folder contains a small Express app using `lowdb` as a JSON datastore. It is meant for local development and prototyping only.
+The `server/` folder contains a small Express app that uses a JSON-based datastore (`lowdb`) for demo purposes.
 
-Start backend (from project root):
+- **Start backend (from project root):**
 
-```cmd
+```powershell
 npm --prefix server run start
 ```
 
-Or run dev auto-restart:
+- **Run backend in dev mode (with auto-restart):**
 
-```cmd
+```powershell
 npm --prefix server run dev
 ```
 
-Backend endpoints (default port 4000):
-- `GET /api/products`
-- `GET /api/products/:id`
-- `POST /api/products`
-- `PUT /api/products/:id`
-- `DELETE /api/products/:id`
-- `GET /api/users`
-- `POST /api/users`
-- `GET /api/orders`
-- `POST /api/orders`
+Default backend port: `4000` (check `server/package.json` and `server/index.js` for exact configuration).
 
-Security note: this backend is not production-ready. Add validation, auth, and proper database before using in production.
+---
+
+**Project layout (key files)**
+
+- `public/index.html` — HTML entry
+- `src/main.jsx` — React entry, Router and context providers
+- `src/App.jsx` — App layout and route definitions
+- `src/components/common/` — `Navbar`, `Footer`, `ProductCard`, `ThemeProvider`
+- `src/pages/` — Route pages grouped by dashboard/area
+- `src/context/` — Authentication and cart context providers
+- `vite.config.js` — Vite configuration
+- `package.json` — frontend scripts and dependencies
+- `server/` — optional Express backend and local routes
+
+---
+
+**Available scripts (frontend)**
+
+- `npm run dev` — Start Vite dev server
+- `npm run build` — Build production assets
+- `npm run preview` — Preview built site locally
+
+**Notes & next steps**
+
+- This project is intended as a demo/prototype. The backend is not production-ready — add proper validation, authentication, and a real database before production use.
+- If you want, I can:
+	- add a short development checklist (`.env.example`),
+	- add a contributing guide, or
+	- set up GitHub Actions to run basic lint/tests.
+
+---
+
+© Project — local demo
+```
