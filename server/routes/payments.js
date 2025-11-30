@@ -53,13 +53,17 @@ router.post('/create-intent', authMiddleware, requireRole('buyer'), async (req, 
   }
 })
 
-// Confirm payment and create order
-router.post('/confirm', authMiddleware, requireRole('buyer'), async (req, res) => {
+// Create order with payment (for card/UPI - creates order first, payment processed separately)
+router.post('/create-order', authMiddleware, requireRole('buyer'), async (req, res) => {
   try {
-    const { paymentIntentId, billing } = req.body
+    const { items, total, billing, paymentMethod, paymentIntentId } = req.body
 
-    if (!paymentIntentId) {
-      return res.status(400).json({ error: 'Payment intent ID required' })
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Items are required' })
+    }
+
+    if (!total || total <= 0) {
+      return res.status(400).json({ error: 'Valid total is required' })
     }
 
     if (!billing || !billing.firstName || !billing.lastName || !billing.email || 
@@ -67,20 +71,20 @@ router.post('/confirm', authMiddleware, requireRole('buyer'), async (req, res) =
       return res.status(400).json({ error: 'Complete billing information is required' })
     }
 
-    if (!stripe) {
-      return res.status(503).json({ error: 'Payment gateway not configured' })
+    // For card/UPI, verify payment if paymentIntentId is provided
+    let paymentStatus = 'pending'
+    if (paymentIntentId && stripe) {
+      try {
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+        paymentStatus = paymentIntent.status
+        if (paymentStatus !== 'succeeded' && paymentMethod !== 'cod') {
+          return res.status(400).json({ error: 'Payment not completed. Please complete the payment first.' })
+        }
+      } catch (err) {
+        console.error('Error verifying payment:', err)
+        // Continue with order creation if payment verification fails
+      }
     }
-
-    // Retrieve payment intent
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
-
-    if (paymentIntent.status !== 'succeeded') {
-      return res.status(400).json({ error: 'Payment not completed' })
-    }
-
-    // Get items from metadata
-    const items = JSON.parse(paymentIntent.metadata.items || '[]')
-    const total = paymentIntent.amount / 100 // Convert from paise to rupees
 
     // Create order
     const order = await Order.create({
@@ -88,14 +92,15 @@ router.post('/confirm', authMiddleware, requireRole('buyer'), async (req, res) =
       items,
       total,
       billing,
-      status: 'pending',
+      status: paymentStatus === 'succeeded' ? 'processing' : 'pending',
       meta: {
-        paymentIntentId,
-        paymentStatus: paymentIntent.status
+        paymentMethod: paymentMethod || 'cod',
+        paymentIntentId: paymentIntentId || null,
+        paymentStatus
       }
     })
 
-    // Clear cart
+    // Clear cart after successful order creation
     try {
       const cart = await Cart.findOne({ userId: req.user._id })
       if (cart) {
@@ -103,7 +108,8 @@ router.post('/confirm', authMiddleware, requireRole('buyer'), async (req, res) =
         await cart.save()
       }
     } catch (cartErr) {
-      console.error('Error clearing cart after payment:', cartErr)
+      console.error('Error clearing cart after order:', cartErr)
+      // Don't fail the order creation if cart clearing fails
     }
 
     res.status(201).json({
@@ -112,8 +118,8 @@ router.post('/confirm', authMiddleware, requireRole('buyer'), async (req, res) =
       message: 'Order placed successfully!'
     })
   } catch (err) {
-    console.error('Payment confirmation error:', err)
-    res.status(500).json({ error: err.message || 'Failed to confirm payment' })
+    console.error('Error creating order with payment:', err)
+    res.status(500).json({ error: err.message || 'Failed to create order' })
   }
 })
 

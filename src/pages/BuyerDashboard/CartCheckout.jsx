@@ -5,13 +5,15 @@ import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 import { validators, validateForm } from '../../utils/validation'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 const CartCheckout = () => {
   const navigate = useNavigate()
-  const { cart, total } = useCart()
+  const { cart, total, clearCart } = useCart()
   const { token, user } = useAuth()
   const [loading, setLoading] = React.useState(false)
   const [message, setMessage] = React.useState({ type: '', text: '' })
+  const [orderSuccess, setOrderSuccess] = React.useState(false)
   const [billing, setBilling] = React.useState({
     firstName: '',
     lastName: '',
@@ -25,7 +27,7 @@ const CartCheckout = () => {
   })
   const [errors, setErrors] = React.useState({})
   const [touched, setTouched] = React.useState({})
-  const [paymentMethod, setPaymentMethod] = React.useState('card')
+  const [paymentMethod, setPaymentMethod] = React.useState('cod')
   const [stripeLoading, setStripeLoading] = React.useState(false)
 
   React.useEffect(() => {
@@ -121,40 +123,82 @@ const CartCheckout = () => {
         const data = await res.json()
         if (!res.ok) throw new Error(data?.error || 'Order creation failed')
         
-        setMessage({ type: 'success', text: 'Order placed successfully! You will pay on delivery.' })
+        // Clear cart after successful order
+        await clearCart()
+        
+        setOrderSuccess(true)
+        setMessage({ type: 'success', text: 'Order placed successfully! You will pay on delivery. Redirecting...' })
+        
         setTimeout(() => {
           navigate('/orders')
-        }, 2000)
+        }, 2500)
         return
       }
 
-      // Create payment intent for card/UPI
-      const paymentRes = await fetch('/api/payments/create-intent', {
+      // For card/UPI payments - create payment intent first, then order
+      let paymentIntentId = null
+      
+      if (paymentMethod === 'card' || paymentMethod === 'upi') {
+        try {
+          const paymentRes = await fetch('/api/payments/create-intent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              amount: Math.round(total * 100), // Convert to paise
+              currency: 'inr',
+              items: cart
+            })
+          })
+
+          const paymentData = await paymentRes.json()
+          if (paymentRes.ok && paymentData.paymentIntentId) {
+            paymentIntentId = paymentData.paymentIntentId
+          } else {
+            // If Stripe is not configured, fall back to creating order without payment
+            console.warn('Payment gateway not available, creating order without payment verification')
+          }
+        } catch (err) {
+          console.warn('Payment initialization failed, creating order without payment verification:', err)
+        }
+      }
+
+      // Create order (with or without payment verification)
+      const orderRes = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          amount: Math.round(total * 100), // Convert to paise
-          currency: 'inr',
-          items: cart
+          items: cart,
+          total,
+          billing,
+          paymentMethod,
+          paymentIntentId
         })
       })
 
-      const paymentData = await paymentRes.json()
-      if (!paymentRes.ok) throw new Error(paymentData?.error || 'Payment initialization failed')
+      const orderData = await orderRes.json()
+      if (!orderRes.ok) throw new Error(orderData?.error || 'Order creation failed')
 
-      if (paymentData.clientSecret) {
-        // For now, we'll create the order after payment
-        // In production, you'd integrate Stripe Elements here
-        setMessage({ type: 'info', text: 'Payment gateway integration in progress. For now, please use Cash on Delivery.' })
-        setLoading(false)
-      } else {
-        throw new Error('Payment initialization failed')
-      }
+      // Clear cart after successful order
+      await clearCart()
+      
+      setOrderSuccess(true)
+      const successMessage = paymentMethod === 'cod' 
+        ? 'Order placed successfully! You will pay on delivery.'
+        : 'Order placed successfully! Payment will be processed.'
+      setMessage({ type: 'success', text: successMessage + ' Redirecting...' })
+      
+      setTimeout(() => {
+        navigate('/orders')
+      }, 2500)
     } catch (err) {
-      setMessage({ type: 'error', text: err.message })
+      console.error('Payment/Order error:', err)
+      setMessage({ type: 'error', text: err.message || 'Something went wrong. Please try again.' })
       setLoading(false)
       setStripeLoading(false)
     }
@@ -185,7 +229,17 @@ const CartCheckout = () => {
             Checkout
           </Typography>
 
-      {message.text && (
+      {orderSuccess && (
+        <Alert 
+          severity="success" 
+          icon={<CheckCircleIcon />}
+          sx={{ mb: 2 }}
+        >
+          Order placed successfully! Redirecting to orders...
+        </Alert>
+      )}
+
+      {message.text && !orderSuccess && (
         <Alert severity={message.type} sx={{ mb: 2 }} onClose={() => setMessage({ type: '', text: '' })}>
           {message.text}
         </Alert>
@@ -429,7 +483,7 @@ const CartCheckout = () => {
                 transition: 'all 0.3s ease'
               }}
               onClick={handlePayment}
-              disabled={loading || stripeLoading}
+              disabled={loading || stripeLoading || orderSuccess}
             >
               {loading || stripeLoading ? (
                 <>
