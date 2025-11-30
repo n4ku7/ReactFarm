@@ -49,7 +49,8 @@ const AdminUsers = () => {
       return
     }
     try {
-      const res = await fetch(`/api/users/${selectedUser.id}/role`, {
+      const userId = selectedUser._id || selectedUser.id
+      const res = await fetch(`/api/users/${userId}/role`, {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -59,10 +60,11 @@ const AdminUsers = () => {
       })
       if (res.ok) {
         const updatedUser = await res.json()
-        setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u))
+        setUsers(users.map(u => (u._id || u.id) === (updatedUser._id || updatedUser.id) ? updatedUser : u))
         setSnack({ open: true, severity: 'success', message: `Role updated to ${newRole}` })
       } else {
-        setSnack({ open: true, severity: 'error', message: 'Failed to update role' })
+        const data = await res.json().catch(() => ({}))
+        setSnack({ open: true, severity: 'error', message: data.error || 'Failed to update role' })
       }
     } catch (err) {
       console.error(err)
@@ -74,19 +76,21 @@ const AdminUsers = () => {
 
   const handleDeleteUser = async () => {
     try {
-      const res = await fetch(`/api/users/${selectedUser.id}`, {
+      const userId = selectedUser._id || selectedUser.id
+      const res = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      if (res.ok) {
-        setUsers(users.filter(u => u.id !== selectedUser.id))
-        setSnack({ open: true, severity: 'success', message: `User ${selectedUser.email} deleted` })
+      if (res.ok || res.status === 204) {
+        setUsers(users.filter(u => (u._id || u.id) !== userId))
+        setSnack({ open: true, severity: 'success', message: `User ${selectedUser.email} deleted successfully` })
       } else {
-        setSnack({ open: true, severity: 'error', message: 'Failed to delete user' })
+        const data = await res.json().catch(() => ({}))
+        setSnack({ open: true, severity: 'error', message: data.error || 'Failed to delete user' })
       }
     } catch (err) {
       console.error(err)
-      setSnack({ open: true, severity: 'error', message: 'Error deleting user' })
+      setSnack({ open: true, severity: 'error', message: err.message || 'Error deleting user' })
     }
     setDialogOpen(false)
     setSelectedUser(null)
@@ -100,47 +104,67 @@ const AdminUsers = () => {
 
   return (
     <Box className="page-container">
-      <Typography variant="h4" gutterBottom>User Management</Typography>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+        User Management
+      </Typography>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ borderRadius: 3, boxShadow: 2, transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 } }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>Total Users</Typography>
-              <Typography variant="h5">{users.length}</Typography>
+              <Typography color="text.secondary" gutterBottom sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Total Users
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                {users.length}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ borderRadius: 3, boxShadow: 2, transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 } }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>Farmers</Typography>
-              <Typography variant="h5">{farmersCount}</Typography>
+              <Typography color="text.secondary" gutterBottom sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Farmers
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 600, color: 'success.main' }}>
+                {farmersCount}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ borderRadius: 3, boxShadow: 2, transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 } }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>Buyers</Typography>
-              <Typography variant="h5">{buyersCount}</Typography>
+              <Typography color="text.secondary" gutterBottom sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Buyers
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 600, color: 'info.main' }}>
+                {buyersCount}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ borderRadius: 3, boxShadow: 2, transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 } }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>Admins</Typography>
-              <Typography variant="h5">{adminsCount}</Typography>
+              <Typography color="text.secondary" gutterBottom sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Admins
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 600, color: 'error.main' }}>
+                {adminsCount}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      <Typography variant="h6" gutterBottom>All Users</Typography>
-      <TableContainer component={Paper}>
+      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+        All Users
+      </Typography>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 2 }}>
         <Table>
-          <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+          <TableHead sx={{ bgcolor: 'primary.light', '& .MuiTableCell-head': { fontWeight: 600 } }}>
             <TableRow>
               <TableCell><strong>Name</strong></TableCell>
               <TableCell><strong>Email</strong></TableCell>
@@ -168,7 +192,16 @@ const AdminUsers = () => {
                     size="small"
                     startIcon={<EditIcon />}
                     variant="outlined"
-                    sx={{ mr: 1 }}
+                    sx={{ 
+                      mr: 1,
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: 2
+                      }
+                    }}
                     onClick={() => openEditDialog(user)}
                   >
                     Edit Role
@@ -178,6 +211,15 @@ const AdminUsers = () => {
                     startIcon={<DeleteIcon />}
                     variant="outlined"
                     color="error"
+                    sx={{ 
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: 2
+                      }
+                    }}
                     onClick={() => openDeleteDialog(user)}
                   >
                     Delete
@@ -189,7 +231,18 @@ const AdminUsers = () => {
         </Table>
       </TableContainer>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm">
+      <Dialog 
+        open={dialogOpen} 
+        onClose={() => setDialogOpen(false)} 
+        fullWidth 
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: 4
+          }
+        }}
+      >
         {dialogMode === 'edit' && (
           <>
             <DialogTitle>Edit User Role</DialogTitle>
@@ -208,9 +261,31 @@ const AdminUsers = () => {
                 </FormControl>
               </Box>
             </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleEditRole} variant="contained">Update Role</Button>
+            <DialogActions sx={{ p: 2 }}>
+              <Button 
+                onClick={() => setDialogOpen(false)}
+                sx={{ borderRadius: 2, textTransform: 'none' }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleEditRole} 
+                variant="contained"
+                sx={{ 
+                  borderRadius: 2, 
+                  textTransform: 'none',
+                  px: 3,
+                  boxShadow: 2,
+                  '&:hover': {
+                    boxShadow: 4,
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.3s ease'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Update Role
+              </Button>
             </DialogActions>
           </>
         )}
@@ -225,9 +300,32 @@ const AdminUsers = () => {
                 This action will also remove all their products and orders.
               </Typography>
             </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleDeleteUser} variant="contained" color="error">Delete</Button>
+            <DialogActions sx={{ p: 2 }}>
+              <Button 
+                onClick={() => setDialogOpen(false)}
+                sx={{ borderRadius: 2, textTransform: 'none' }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleDeleteUser} 
+                variant="contained" 
+                color="error"
+                sx={{ 
+                  borderRadius: 2, 
+                  textTransform: 'none',
+                  px: 3,
+                  boxShadow: 2,
+                  '&:hover': {
+                    boxShadow: 4,
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.3s ease'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Delete User
+              </Button>
             </DialogActions>
           </>
         )}

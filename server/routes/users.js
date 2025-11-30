@@ -66,4 +66,49 @@ router.post('/login', async (req, res) => {
   res.json({ token, user: { id: user._id, email: user.email, name: user.name, role: user.role } })
 })
 
+// update user role (admin only)
+router.put('/:id/role', authMiddleware, requireRole('admin'), async (req, res) => {
+  try {
+    const { role } = req.body
+    if (!role || !['buyer', 'farmer', 'admin'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' })
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true }).select('-password')
+    if (!user) return res.status(404).json({ error: 'User not found' })
+    res.json(user)
+  } catch (err) {
+    console.error('Error updating user role:', err)
+    res.status(500).json({ error: 'Failed to update user role' })
+  }
+})
+
+// delete user (admin only)
+router.delete('/:id', authMiddleware, requireRole('admin'), async (req, res) => {
+  try {
+    const userId = req.params.id
+    const user = await User.findById(userId)
+    if (!user) return res.status(404).json({ error: 'User not found' })
+    
+    // Prevent deleting yourself
+    if (String(user._id) === String(req.user._id)) {
+      return res.status(400).json({ error: 'You cannot delete your own account' })
+    }
+    
+    // Delete user and related data
+    await User.findByIdAndDelete(userId)
+    
+    // Also delete related products and orders (optional - you might want to keep orders for records)
+    const Product = (await import('../models/Product.js')).default
+    const Order = (await import('../models/Order.js')).default
+    
+    await Product.deleteMany({ farmerId: String(userId) })
+    await Order.deleteMany({ buyerId: userId })
+    
+    res.status(204).end()
+  } catch (err) {
+    console.error('Error deleting user:', err)
+    res.status(500).json({ error: 'Failed to delete user' })
+  }
+})
+
 export default router

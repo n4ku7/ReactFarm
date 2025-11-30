@@ -9,8 +9,11 @@
   --success: #b9e28c; /* pastel green */
   --warning: #ffd166; /* soft amber */
   --error: #ffadad; /* soft red */
-  --radius: 10px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --radius: 12px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.12);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html, body, #root {
@@ -44,6 +47,12 @@ a:hover {
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   padding: 16px;
+  transition: var(--transition);
+}
+
+.card:hover, .panel:hover, .paper:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 /* Buttons (non-MUI fallbacks) */
@@ -54,7 +63,32 @@ button {
   border-radius: var(--radius);
   padding: 10px 14px;
   cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
 }
 button:hover {
   background: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Page container improvements */
+.page-container {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
